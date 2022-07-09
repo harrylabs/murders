@@ -56,7 +56,8 @@ new_tidy_data %>% ggplot(aes(year, fertility, color = country)) +
 #RESHAPING DATA: pivot_wider
 #-----------------------------------
 
-#still working with the same data as in the previous section, simply run the code above
+#still working with the same data as in the previous section
+#simply run the code above
 #convert the tidy data to wide data
 new_wide_data <- new_tidy_data %>%
   pivot_wider(names_from = year, values_from = fertility)
@@ -82,3 +83,42 @@ dat$name[1:5]
 #separate on underscores
 dat %>% separate(name, c("year", "name"), sep = "_")
 
+#separate on underscores (the default), convert years to numeric
+dat %>% separate(name, c("year", "name"), convert = TRUE)
+
+#split on all underscores, pad empty cells with NA
+dat %>% separate(name, c("year", "name_1", "name_2"), 
+                 fill = "right" ,convert = TRUE)
+
+#split on first underscore but keep life_expectancy merged
+dat %>% separate(name, c("year", "name"), sep = "_",
+                 extra = "merge", convert = TRUE)
+
+#separate then create a new column for each variable using pivot_wider
+dat %>% separate(name, c("year", "name"), sep = "_",
+                 extra = "merge", convert = TRUE) %>%
+  pivot_wider()
+
+#-----------------------------------
+#UNITE
+#-----------------------------------
+
+#using the data from the previous section, simply run the code
+#if we had used this non-optimal approach to separate
+dat %>%
+  separate(name, c("year", "name_1", "name_2"), 
+           fill = "right", convert = TRUE)
+
+#we could unite the second and third columns using unite()
+dat %>%
+  separate(name, c("year", "name_1", "name_2"), 
+           fill = "right", convert = TRUE) %>%
+  unite(variable_name, name_1, name_2, sep = "_")
+
+#spread the columns
+dat %>% 
+  separate(name, c("year", "name_1", "name_2"), 
+           fill = "right", convert = TRUE) %>%
+  unite(name, name_1, name_2, sep="_") %>%
+  spread(name, value) %>%
+  rename(fertility = fertility_NA)
